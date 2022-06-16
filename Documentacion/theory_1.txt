@@ -1,0 +1,112 @@
+# Teoria 1
+
+https://codingavayaaura.wordpress.com/2020/02/07/cms-ossi-disenchanted/
+
+Programs, which connect directly to Avaya Aura Communication Manager on SSH (like Site Administration, AES SMS, etc.) are using the OSSI interface. OSSI stands for “Operations Support Systems Interface” and is nothing else than a specific SAT Terminal-Type.
+
+With OSSI it is possible to execute every Communication Manager command without using the Site Administration GUI (“GEDI”) or Terminal Emulation (“513”).
+
+There are some (helpful) extensions when setting OSSI as Terminal-Type. Here are some examples:
+
+ossi    (Default)
+ossiz   Any customer-related superuser login to CM will be able to read aswell as write station security codes
+ossi3   Only the “init” user can read station security codes.
+ossie   Exactly the same as OSSIZ except extension numbers do not containpunctuation
+ossim   Manual - Shows detailed information for fields
+ossit   Terminal - The output is shown "Terminal-Friendly"
+You can combine letters after “ossi” to enable multiple functions. E.g: “ossimt” is showing the “Manual” for every command in a “Terminal-Friendly” way.
+
+Commands in OSSI are always structered like this:
+
+Input:
+c    Command (e.g. clist station)
+f    Field to show/modify (e.g. f8003ff00)
+d    Data for the field (e.g. Joe)
+t    Terminate -> Execute command
+
+Output:
+c    The executed Command is shown (e.g. clist station)
+e    Exception
+f    Field(s) of the output (e.g. f8003ff00)
+d    Data for the field (e.g. Joe)
+n    New line (for Multiple Data)
+t    Terminate -> End of output
+Example #1: List Stations but show only Names
+
+*** Input ***
+clist station
+f8003ff00
+t
+
+*** Output ***
+clist station
+f8003ff00
+dJoe
+n
+dJohn
+t
+Example #2: Change the name of Station 12345 to “John Doe”
+
+*** Input ***
+cchange station 12345
+f8003ff00
+dJohn Doe
+t
+
+*** Output ***
+cchange station 12345
+t
+As you can see in Example #2 there is not really an output. Just the information that the command was executed.
+
+Multiple Fields can either be submited in every new line, starting with an “f” or seperated in one line by Tab-Stops. The Data for the fields should be arranged the same way.
+
+If you don’t submit fields in display-only commands (e.g. display, list, etc.) the output will come up with the default fieldset:
+
+clist station
+f8005ff00       8004ff00        8003ff00        0031ff00        8007ff00
+f8001ff00       0033ff00        4e22ff00        004fff00        700dff00
+f6a01ff00       0019ff00        ce2aff00        8002ff00        4a3bff00
+f0032ff00
+d12345       S00040  John Doe          
+d6                      9650
+dno                     1       1
+d
+n
+d23456       S00033  Joe Anybody
+d1                      9608
+dno                     1       1
+d
+t
+When you set the “m” for Manual in , then you will see descriptions for every field of a command instead of the data. For testing you can also enable the “Terminal-Friendly” output by setting the Terminal Type to ossimt. With this option you will also see all keyboard-input:
+
+Terminal Type (513, 715, 4410, 4425, VT220, NTT, W2KTT, SUNT): [513] ossimt
+t
+clist station
+t
+clist station
+                STATION
+                CTI LINK
+ 6c07ff00 CTI Link:     2
+ 8005ff00 Extension:    13
+ 004fff00 Type:         9
+ 002eff00 Set:  5
+ 4654ff00 Set:  5
+ 8004ff00 Port:         7
+ 8003ff00 Name:         27
+ 0015ff00 Lock Messages?        1
+ 0016ff00 Security Code:        8
+ 8007ff00 Coverage Path 1:      4
+ ce2aff00 Coverage Path 2:      4
+ 5802ff00 Map-to Station:       13
+ 4e22ff00 Hunt-to Station:      13
+                BCC: 0
+ 4a3bff00 TN:   3
+more?[y]
+
+
+----------------------------------
+
+Teoria 2
+
+https://sudonull.com/post/73948-OSSI-Protocol-and-Avaya-Communication-Manager
+
